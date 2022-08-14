@@ -25,6 +25,7 @@ class m220713_075749_init extends Migration
             'email' => $this->string()->notNull()->unique(),
             'created_at' => $this->dateTime()->notNull(),
             'updated_at' => $this->dateTime()->notNull(),
+            'auth_key' => $this->string(32)->notNull(),
         ], $tableOptions);
     }
 

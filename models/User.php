@@ -40,7 +40,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'user';
     }
@@ -48,10 +48,10 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['username', 'auth_key', 'twitch_id', 'email', 'created_at', 'updated_at'], 'required'],
+            [['username', 'auth_key', 'twitch_id', 'email'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
             [['username', 'email'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
@@ -81,7 +81,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id)
+    public static function findIdentity($id): User|IdentityInterface|null
     {
         return static::findOne(['id' => $id]);
     }
@@ -90,7 +90,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @inheritdoc
      * @throws NotSupportedException
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public static function findIdentityByAccessToken($token, $type = null): ?IdentityInterface
     {
         throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
@@ -106,7 +106,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public function getAuthKey()
+    public function getAuthKey(): ?string
     {
         return $this->auth_key;
     }
@@ -114,7 +114,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): ?bool
     {
         return $this->getAuthKey() === $authKey;
     }
@@ -125,7 +125,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $password password to validate
      * @return boolean if password provided is valid for current user
      */
-    public function validatePassword($password)
+    public function validatePassword($password): bool
     {
         return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
@@ -136,7 +136,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $password
      * @throws Exception
      */
-    public function setPassword($password)
+    public function setPassword(string $password)
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
@@ -147,8 +147,17 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username)
+    public static function findByUsername(string $username): static
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['username' => $username]);
+    }
+
+    /**
+     * Generates "remember me" authentication key
+     * @throws Exception
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 }

@@ -42,18 +42,23 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+
 
         'authClientCollection' => [
             'class' => 'yii\authclient\Collection',
             'clients' => [
+                'twitch' => [
+                    'class' => 'pa3py6aka\yii2auth\TwitchClient',
+                    'clientId' => 'q1lbfj2qdo5f1y85viaynlbvjojtiv',
+                    'clientSecret' => 'axuyh7f8x1y8wcjtmku37qrj895d1f',
+                ],
                 'google' => [
                     'class' => 'yii\authclient\clients\Google',
                     'clientId' => 'google_client_id',

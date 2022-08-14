@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\auth\AuthHandler;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -65,6 +66,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $d = 1;
         return $this->render('index');
     }
 
