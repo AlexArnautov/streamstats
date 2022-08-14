@@ -79,13 +79,14 @@ class StreamRepository
         return (new Query())
             ->select(
                 [
+                    'month' => 'MONTHNAME(started_at)',
                     'day' => 'DAY(started_at)',
                     'hour' => 'HOUR(started_at)',
                     'streams' => 'count(id)',
                 ],
             )
             ->from('stream')
-            ->groupBy(['DAY(started_at)', 'HOUR(started_at)'])
+            ->groupBy(['MONTHNAME(started_at)', 'DAY(started_at)', 'HOUR(started_at)'])
             ->all();
     }
 

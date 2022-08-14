@@ -83,10 +83,18 @@ class UserController extends Controller
      */
     public function actionLowerUserStream(): array
     {
+        $result = [
+            'title' => '',
+            'need_viewers' => ''
+        ];
         $userStreams = $this->streamsApiService->getActiveUserStreams();
         $counts = array_column($userStreams, 'viewer_count');
         $index = array_search(min($counts), $counts, true);
         $lowerStream = $userStreams[$index];
+        if (empty($lowerStream)) {
+            $result['title'] = 'No active streams';
+            return $result;
+        }
 
         $lowerViewersInTop = (new Query())
             ->select(
@@ -103,7 +111,7 @@ class UserController extends Controller
             $needViewersForTop = $lowerViewersInTop - $lowerStream['viewer_count'];
         }
 
-        return ['lower_user_stream' => $lowerStream, 'need_viewers_for_top' => $needViewersForTop];
+        return ['title' => $lowerStream['title'], 'need_viewers_for_top' => $needViewersForTop];
     }
 
 }
