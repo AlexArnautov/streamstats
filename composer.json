@@ -19,7 +19,8 @@
         "yiisoft/yii2-bootstrap4": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
         "yiisoft/yii2-authclient": "^2.2",
-        "pa3py6aka/yii2-twitch-authclient": "^1.0"
+        "pa3py6aka/yii2-twitch-authclient": "^1.0",
+        "nicklaw5/twitch-api-php": "^6.1"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

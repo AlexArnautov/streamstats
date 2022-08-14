@@ -13,10 +13,6 @@ use yii\helpers\ArrayHelper;
  */
 class AuthHandler
 {
-    /**
-     * @var ClientInterface
-     */
-    private ClientInterface $client;
     private string $email;
     private int $twitchId;
     private string $username;
@@ -24,9 +20,8 @@ class AuthHandler
     /**
      * @throws Exception
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(private readonly ClientInterface $client)
     {
-        $this->client = $client;
         $attributes = $this->client->getUserAttributes();
         $this->email = ArrayHelper::getValue($attributes, 'email');
         $this->twitchId = ArrayHelper::getValue($attributes, 'id');
@@ -38,9 +33,10 @@ class AuthHandler
      */
     public function handle(): void
     {
+
         /* @var User $user */
         $user = User::find()->where([
-            'twitch_id' => $this->client->getId(),
+            'twitch_id' => $this->twitchId,
         ])->one();
 
         if (Yii::$app->user->isGuest) {

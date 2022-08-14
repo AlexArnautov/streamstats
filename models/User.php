@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use pa3py6aka\yii2auth\TwitchClient;
 use Yii;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
