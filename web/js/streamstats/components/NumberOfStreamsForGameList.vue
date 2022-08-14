@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="card-header">
-            <i class="fa-solid fa-table-rows"></i> <strong>Number of Streams for Each Game</strong>
+            <i class="fa-solid fa-table-list"></i> <strong>Number of Streams for Each Game</strong>
         </div>
         <div class="card-body">
             <a-table

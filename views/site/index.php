@@ -12,7 +12,7 @@ VueAsset::register($this);
 if (Yii::$app->user->isGuest) { ?>
     <section class="jumbotron text-center">
         <div class="container">
-            <h1>Stream Stats</h1>
+            <h1>StreamStats</h1>
             <p class="lead text-muted">
                 This application is aimed at helping Twitch viewers get a quick look at how the channels they watch
                 compare to the top 1000 live streams. </p>

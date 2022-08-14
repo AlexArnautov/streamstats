@@ -16,10 +16,16 @@ use yii\web\Response;
 class GameController extends Controller
 {
 
+    /**
+     * @param $id
+     * @param $module
+     * @param StreamRepository $streamRepository
+     * @param array $config
+     */
     public function __construct(
         $id,
         $module,
-        protected readonly StreamRepository $streamRepository,
+        private readonly StreamRepository $streamRepository,
         array $config = []
     ) {
         parent::__construct($id, $module, $config);

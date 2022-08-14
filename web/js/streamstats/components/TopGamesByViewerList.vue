@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="card-header">
-            <i class="fa-solid fa-table-rows"></i> <strong>Top Games by Viewer Count</strong>
+            <i class="fa-solid fa-table-list"></i> <strong>Top Games by Viewer Count</strong>
         </div>
         <div class="card-body">
             <a-table

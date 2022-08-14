@@ -4,7 +4,7 @@
             <i class="fa-solid fa-user"></i> <strong>Lower User Followed Stream</strong>
         </div>
         <div class="card-body">
-            <strong>Lower User Stream:</strong>{{ data.title }}<br/>
+            <strong>Lower User Stream:</strong> {{ data.title }}<br/>
             <strong>Need Viewers for top 1000:</strong> {{ data.need_viewers_for_top }}
         </div>
     </div>

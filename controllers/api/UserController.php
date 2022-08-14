@@ -27,8 +27,8 @@ class UserController extends Controller
     public function __construct(
         $id,
         $module,
-        protected readonly StreamsAPIServiceInterface $streamsApiService,
-        protected readonly StreamRepository $streamRepository,
+        private readonly StreamsAPIServiceInterface $streamsApiService,
+        private readonly StreamRepository $streamRepository,
         array $config = []
     ) {
         parent::__construct($id, $module, $config);

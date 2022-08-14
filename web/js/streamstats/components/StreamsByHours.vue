@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="card-header">
-            <i class="fa-solid fa-table-rows"></i> <strong>Total number of streams by Hours</strong>
+            <i class="fa-solid fa-table-list"></i> <strong>Total number of streams by Hours</strong>
         </div>
         <div class="card-body">
             <a-table
