@@ -23,8 +23,7 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    public array $loginUrl = ['site/index'];
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'timestamp' => [
@@ -99,7 +98,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->getPrimaryKey();
     }
@@ -137,7 +136,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string $password
      * @throws Exception
      */
-    public function setPassword(string $password)
+    public function setPassword(string $password): void
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
@@ -157,7 +156,7 @@ class User extends ActiveRecord implements IdentityInterface
      * Generates "remember me" authentication key
      * @throws Exception
      */
-    public function generateAuthKey()
+    public function generateAuthKey(): void
     {
         $this->auth_key = Yii::$app->security->generateRandomString();
     }

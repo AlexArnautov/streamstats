@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers\api;
 
-use Yii;
 use yii\db\DataReader;
-use yii\db\Exception;
 use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\ContentNegotiator;
@@ -57,8 +57,9 @@ class GameController extends Controller
             ->all();
     }
 
+
     /**
-     * @throws Exception
+     * @return DataReader|array
      */
     public function actionTopGames(): DataReader|array
     {

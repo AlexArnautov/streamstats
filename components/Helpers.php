@@ -9,6 +9,7 @@ use Exception;
 class Helpers
 {
     /**
+     * Calculate median for array
      * @throws Exception
      */
     public static function calculateMedian(array $array): int|float

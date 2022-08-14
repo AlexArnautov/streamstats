@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers\api;
 
 use app\components\Helpers;
@@ -63,6 +65,24 @@ class StreamController extends Controller
         return Stream::find()
             ->orderBy(['viewer_count' => SORT_DESC])
             ->limit(self::TOP_LIMIT)
+            ->all();
+    }
+
+    /**
+     * @return array
+     */
+    public function actionStreamsByHour(): array
+    {
+        return (new Query())
+            ->select(
+                [
+                    'day' => 'DAY(started_at)',
+                    'hour' => 'HOUR(started_at)',
+                    'streams' => 'count(id)',
+                ],
+            )
+            ->from('stream')
+            ->groupBy(['DAY(started_at)', 'HOUR(started_at)'])
             ->all();
     }
 }

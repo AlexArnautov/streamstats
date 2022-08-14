@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\components\auth;
 
 use app\models\User;
@@ -14,7 +16,7 @@ use yii\helpers\ArrayHelper;
 class AuthHandler
 {
     private string $email;
-    private int $twitchId;
+    private string $twitchId;
     private string $username;
 
     /**
@@ -33,7 +35,6 @@ class AuthHandler
      */
     public function handle(): void
     {
-
         /* @var User $user */
         $user = User::find()->where([
             'twitch_id' => $this->twitchId,

@@ -8,6 +8,11 @@ use app\models\Stream;
 
 class StreamsFactory
 {
+    /**
+     * @param array $rawData
+     * @param string $parseHash
+     * @return Stream
+     */
     public function createStream(array $rawData, string $parseHash): Stream
     {
         if (empty($rawData['title'])) {

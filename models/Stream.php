@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 
@@ -35,6 +34,7 @@ class Stream extends ActiveRecord
             ],
         ];
     }
+
     /**
      * {@inheritdoc}
      */

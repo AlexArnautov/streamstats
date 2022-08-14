@@ -72,6 +72,7 @@ class ParseStreamsController extends Controller
             $streamModel->parse_hash = $parseHash;
             if ($streamModel->save()) {
                 echo 'Stream saved: ' . $streamModel->title . PHP_EOL;
+                $tags = $this->streamsService->getTagByBroadcasterId($streamRaw['user_id']);
             } else {
                 echo Json::encode($streamRaw) . PHP_EOL;
                 throw new Exception('Unable to save stream: ' . Json::encode($streamModel->getFirstErrors()));

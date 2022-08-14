@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace app\components;
@@ -20,6 +21,9 @@ class StreamsAPIService implements StreamsAPIServiceInterface
     private ?string $twitchAccessToken;
     private TwitchApi $twitchApi;
 
+    /**
+     * @throws GuzzleException
+     */
     public function __construct()
     {
         $this->twitchClientId = Yii::$app->params['twitch.clientId'];
@@ -32,7 +36,7 @@ class StreamsAPIService implements StreamsAPIServiceInterface
         );
 
         try {
-            $token = $this->twitchApi->getOauthApi()->getAppAccessToken('');
+            $token = $this->twitchApi->getOauthApi()->getAppAccessToken();
             $data = Json::decode($token->getBody()->getContents());
             $this->twitchAccessToken = $data['access_token'] ?? null;
         } catch (Exception $e) {
@@ -57,4 +61,54 @@ class StreamsAPIService implements StreamsAPIServiceInterface
             yield $streamsData['data'];
         }
     }
+
+
+    /**
+     * @throws GuzzleException
+     * @throws \yii\base\Exception|\Throwable
+     */
+    public function getLoggedUserStreams(): array
+    {
+        $twitchId = Yii::$app->user->getIdentity()->twitch_id;
+
+        if (Yii::$app->user->isGuest) {
+            throw new \yii\base\Exception('User is not logged in');
+        }
+
+        $allUserStreams = [];
+        $afterHash = null;
+        do {
+            $streams = $this->twitchApi
+                ->getUsersApi()
+                ->getUsersFollows($this->twitchAccessToken, (string)$twitchId, null, self::STREAMS_PER_PAGE, $afterHash)
+                ->getBody()
+                ->getContents();
+
+            $streamsData = Json::decode($streams);
+
+            if (isset($streamsData['pagination']['cursor'])) {
+                $afterHash = $streamsData['pagination']['cursor'];
+            }
+
+            $allUserStreams = array_merge($allUserStreams, $streamsData['data']);
+        } while (isset($streamsData['pagination']['cursor']));
+
+        return $allUserStreams;
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getTagByBroadcasterId(string $streamId): string
+    {
+        return Json::decode(
+            $this->twitchApi
+                ->getTagsApi()
+                ->getStreamTags($this->twitchAccessToken, $streamId)
+                ->getBody()
+                ->getContents()
+        );
+    }
+
+
 }

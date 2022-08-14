@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers;
 
 use app\components\auth\AuthHandler;
+use Exception;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
 
 class SiteController extends Controller
 {
@@ -90,6 +92,9 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
+    /**
+     * @throws Exception
+     */
     public function onAuthSuccess($client)
     {
         (new AuthHandler($client))->handle();
