@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  webserver:
+    build:
+      context: docker/images/php81
+    container_name: 'stream-stats-php81'
+    restart: 'always'
+    hostname: streamstats.local
+    ports:
+      - "80:80"
+    links:
+      - database
+    volumes:
+      - ./:/var/www/html
+      - ./docker/config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./docker/config/vhosts:/etc/apache2/sites-enabled
+      - ./docker/logs/site/apache2:/var/log/apache2
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/html/web
+      XDEBUG_CONFIG: "client_host=host.docker.internal remote_port=9005"
+      PHP_IDE_CONFIG: serverName=streamstats.local
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  database:
+    build:
+      context: "./docker/images/mysql"
+    container_name: 'streamstats-database'
+    restart: 'always'
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+      - ./docker/logs/mysql:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: streamstats
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
