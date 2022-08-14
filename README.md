@@ -64,3 +64,7 @@ storage like Redis.
 6) We need to add check for console command to avoid running several copies in the same time.
 If duration of command will become more than 15 minutes or in case of any issues.
 
+Video
+-------------------
+<a href="https://drive.google.com/file/d/14k1GZMDfcO96e4X4J0NSoAhCZzFrhGky/view?usp=sharing">Link</a>
+
