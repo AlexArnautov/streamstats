@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace app\commands;
 
 
-use app\components\StreamsAPIServiceInterface;
-use app\components\StreamsFactory;
-use app\components\TagsFactory;
+use app\components\factories\StreamFactory;
+use app\components\factories\TagFactory;
+use app\components\services\StreamsAPIServiceInterface;
 use app\models\Stream;
 use app\models\Tag;
 use GuzzleHttp\Exception\GuzzleException;
@@ -26,16 +26,16 @@ class ParseStreamsController extends Controller
      * @param $id
      * @param $module
      * @param StreamsAPIServiceInterface $streamsService
-     * @param StreamsFactory $streamsFactory
-     * @param TagsFactory $tagsFactory
+     * @param StreamFactory $streamsFactory
+     * @param TagFactory $tagsFactory
      * @param array $config
      */
     public function __construct(
         $id,
         $module,
         protected readonly StreamsAPIServiceInterface $streamsService,
-        protected readonly StreamsFactory $streamsFactory,
-        protected readonly TagsFactory $tagsFactory,
+        protected readonly StreamFactory $streamsFactory,
+        protected readonly TagFactory $tagsFactory,
         array $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -49,17 +49,18 @@ class ParseStreamsController extends Controller
     public function actionIndex(): int
     {
         $parseHash = Yii::$app->security->generateRandomString(10);
-        echo 'Start parsing streams...' . PHP_EOL;
+        $this->showMessage('Start parsing streams...' . PHP_EOL);
         try {
             foreach ($this->streamsService->getStreams() as $streamBatch) {
-                echo PHP_EOL . 'Starting new batch...' . PHP_EOL;
+                $this->showMessage(PHP_EOL . 'Starting new batch...' . PHP_EOL);
                 $this->saveBatch($streamBatch, $parseHash);
             }
-            echo 'Deleting old streams...' . PHP_EOL;
+            $this->showMessage('Deleting old streams...' . PHP_EOL);
             Stream::deleteAll(['!=', 'parse_hash', $parseHash]);
         } catch (\Exception $e) {
             echo $this->ansiFormat($e->getMessage(), Console::FG_RED) . PHP_EOL;
             echo $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+            Yii::error($e->getMessage(), 'Parsing');
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
@@ -81,11 +82,11 @@ class ParseStreamsController extends Controller
             }
             $streamModel->parse_hash = $parseHash;
             if ($streamModel->save()) {
-                echo 'Stream saved: ' . $streamModel->title . PHP_EOL;
+                $this->showMessage('Stream saved: ' . $streamModel->title . PHP_EOL);
                 $tags = $this->streamsService->getTagsByBroadcasterId((string)$streamModel->twitch_user_id);
                 $this->saveStreamTags($streamModel, $tags);
             } else {
-                echo Json::encode($streamRaw) . PHP_EOL;
+                $this->showMessage(Json::encode($streamRaw) . PHP_EOL);
                 throw new Exception('Unable to save stream: ' . Json::encode($streamModel->getFirstErrors()));
             }
         }
@@ -102,7 +103,7 @@ class ParseStreamsController extends Controller
             if ($tagModel === null) {
                 $tagModel = $this->tagsFactory->createTag($tag);
                 if ($tagModel->save()) {
-                    echo 'New tag saved: ' . $tagModel->name . PHP_EOL;
+                    $this->showMessage('New tag saved: ' . $tagModel->name . PHP_EOL);
                 } else {
                     throw new Exception('Unable to save tag: ' . Json::encode($tagModel->getFirstErrors()));
                 }
@@ -113,5 +114,11 @@ class ParseStreamsController extends Controller
                 $streamModel->link('tags', $tagModel);
             }
         }
+    }
+
+    private function showMessage(string $msg): void
+    {
+        echo $msg;
+        Yii::info($msg, 'Parsing');
     }
 }

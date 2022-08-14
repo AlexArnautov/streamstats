@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace app\controllers\api;
 
-use app\components\StreamsAPIServiceInterface;
+
+use app\components\repositories\StreamRepository;
+use app\components\services\StreamsAPIServiceInterface;
 use app\models\Tag;
-use GuzzleHttp\Exception\GuzzleException;
-use Throwable;
-use yii\base\Exception;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\ContentNegotiator;
 use yii\web\Controller;
@@ -20,13 +20,15 @@ class UserController extends Controller
     /**
      * @param $id
      * @param $module
-     * @param StreamsAPIServiceInterface $streamsService
+     * @param StreamsAPIServiceInterface $streamsApiService
+     * @param StreamRepository $streamRepository
      * @param array $config
      */
     public function __construct(
         $id,
         $module,
-        protected readonly StreamsAPIServiceInterface $streamsService,
+        protected readonly StreamsAPIServiceInterface $streamsApiService,
+        protected readonly StreamRepository $streamRepository,
         array $config = []
     ) {
         parent::__construct($id, $module, $config);
@@ -57,35 +59,51 @@ class UserController extends Controller
     }
 
     /**
-     * @throws Exception
-     * @throws GuzzleException
-     * @throws Throwable
+     * @return array
      */
     public function actionTopFollowing(): array
     {
-        return $this->streamsService->getLoggedUserStreams();
+        $broadcasterIds = array_column($this->streamsApiService->getUserFollows(), 'to_id');
+        return $this->streamRepository->getTopStreamsByBroadcasterIds($broadcasterIds);
     }
 
     /**
-     * @throws Exception
-     * @throws GuzzleException
-     * @throws Throwable
+     * @return array
      */
     public function actionSharedTags(): array
     {
-        $tagIds = $this->streamsService->getLoggedUserTagIds();
+        $tagIds = $this->streamsApiService->getLoggedUserTagIds();
         return Tag::find()
             ->select('name')
             ->where(['in', 'twitch_id', $tagIds])->column();
     }
 
     /**
-     * @throws Exception
-     * @throws GuzzleException
-     * @throws Throwable
+     * @return array
      */
-    public function actionStreamToTop(): array
+    public function actionLowerUserStream(): array
     {
-       $this->streamsService->getNeededViewersUserFollowedForTop();
+        $userStreams = $this->streamsApiService->getActiveUserStreams();
+        $counts = array_column($userStreams, 'viewer_count');
+        $index = array_search(min($counts), $counts, true);
+        $lowerStream = $userStreams[$index];
+
+        $lowerViewersInTop = (new Query())
+            ->select(
+                [
+                    'min(viewer_count)',
+                ],
+            )
+            ->from('stream')
+            ->scalar();
+
+        if ($lowerStream['viewer_count'] > $lowerViewersInTop) {
+            $needViewersForTop = 'Already in top';
+        } else {
+            $needViewersForTop = $lowerViewersInTop - $lowerStream['viewer_count'];
+        }
+
+        return ['lower_user_stream' => $lowerStream, 'need_viewers_for_top' => $needViewersForTop];
     }
+
 }

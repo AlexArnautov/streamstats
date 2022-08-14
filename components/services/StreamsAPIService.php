@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace app\components;
+namespace app\components\services;
 
 use Exception;
 use Generator;
 use GuzzleHttp\Exception\GuzzleException;
+use Throwable;
 use TwitchApi\HelixGuzzleClient;
 use TwitchApi\TwitchApi;
 use Yii;
@@ -49,7 +50,7 @@ class StreamsAPIService implements StreamsAPIServiceInterface
      * @return Generator
      * @throws GuzzleException
      */
-    public function getStreams(Array $userIds = []): Generator
+    public function getStreams(array $userIds = []): Generator
     {
         $afterHash = null;
         for ($i = 1; $i <= self::STREAMS_PAGES; $i++) {
@@ -59,7 +60,12 @@ class StreamsAPIService implements StreamsAPIServiceInterface
                 ->getBody()
                 ->getContents();
             $streamsData = Json::decode($streams);
-            $afterHash = $streamsData['pagination']['cursor'];
+            if (isset($streamsData['pagination']['cursor'])) {
+                $afterHash = $streamsData['pagination']['cursor'];
+            } else {
+                yield $streamsData['data'];
+                break;
+            }
             yield $streamsData['data'];
         }
     }
@@ -67,9 +73,9 @@ class StreamsAPIService implements StreamsAPIServiceInterface
 
     /**
      * @throws GuzzleException
-     * @throws \yii\base\Exception|\Throwable
+     * @throws \yii\base\Exception|Throwable
      */
-    public function getLoggedUserStreams(): array
+    public function getUserFollows(): array
     {
         $twitchId = Yii::$app->user->getIdentity()->twitch_id;
 
@@ -99,14 +105,16 @@ class StreamsAPIService implements StreamsAPIServiceInterface
     }
 
     /**
+     * @param string $broadcasterId
+     * @return array
      * @throws GuzzleException
      */
-    public function getTagsByBroadcasterId(string $streamId): array
+    public function getTagsByBroadcasterId(string $broadcasterId): array
     {
         return Json::decode(
             $this->twitchApi
                 ->getTagsApi()
-                ->getStreamTags($this->twitchAccessToken, $streamId)
+                ->getStreamTags($this->twitchAccessToken, $broadcasterId)
                 ->getBody()
                 ->getContents()
         );
@@ -115,13 +123,13 @@ class StreamsAPIService implements StreamsAPIServiceInterface
     /**
      * @throws \yii\base\Exception
      * @throws GuzzleException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function getLoggedUserTagIds(): array
     {
         $tagIds = [];
 
-        $userStreams = $this->getLoggedUserStreams();
+        $userStreams = $this->getUserFollows();
 
         foreach ($userStreams as $userStream) {
             $tags = array_merge($this->getTagsByBroadcasterId($userStream['to_id']));
@@ -132,15 +140,20 @@ class StreamsAPIService implements StreamsAPIServiceInterface
     }
 
     /**
-     * @throws GuzzleException
-     * @throws \Throwable
+     * @throws Throwable
      * @throws \yii\base\Exception
+     * @throws GuzzleException
      */
-    public function getNeededViewersUserFollowedForTop() {
-        $userStreams = $this->getLoggedUserStreams();
-        $userStreamIds = array_column($userStreams, 'to_id');
-
-
+    public function getActiveUserStreams(): array
+    {
+        $streams = [];
+        $broadcasterIds = array_column($this->getUserFollows(), 'to_id');
+        foreach ($this->getStreams($broadcasterIds) as $streamBatch) {
+            foreach ($streamBatch as $stream) {
+                $streams[] = $stream;
+            }
+        }
+        return $streams;
     }
 
 

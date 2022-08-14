@@ -1,14 +1,18 @@
 <?php
 
 Yii::$container->set(
-    'app\components\StreamsAPIServiceInterface',
-    'app\components\StreamsAPIService'
+    'app\components\services\StreamsAPIServiceInterface',
+    'app\components\services\StreamsAPIService'
 );
 
 Yii::$container->set(
-    'app\components\StreamsFactory'
+    'app\components\factories\StreamFactory'
 );
 
 Yii::$container->set(
-    'app\components\TagsFactory'
+    'app\components\factories\TagFactory'
+);
+
+Yii::$container->set(
+    'app\components\repositories\StreamRepository'
 );

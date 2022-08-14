@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace app\controllers\api;
 
+
+use app\components\repositories\StreamRepository;
 use yii\db\DataReader;
-use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\ContentNegotiator;
 use yii\web\Controller;
@@ -14,6 +15,16 @@ use yii\web\Response;
 
 class GameController extends Controller
 {
+
+    public function __construct(
+        $id,
+        $module,
+        protected readonly StreamRepository $streamRepository,
+        array $config = []
+    ) {
+        parent::__construct($id, $module, $config);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -43,18 +54,7 @@ class GameController extends Controller
      */
     public function actionNumberOfStreams(): DataReader|array
     {
-        return (new Query())
-            ->select(
-                [
-                    'streams' => 'count(id)',
-                    'game' => 'game_name',
-                ],
-            )
-            ->from('stream')
-            ->where(['!=', 'game_name', ''])
-            ->groupBy('game_name')
-            ->orderBy('game_name')
-            ->all();
+        return $this->streamRepository->getNumberOfStreamsByGames();
     }
 
 
@@ -63,18 +63,7 @@ class GameController extends Controller
      */
     public function actionTopGames(): DataReader|array
     {
-        return (new Query())
-            ->select(
-                [
-                    'viewers' => 'SUM(viewer_count)',
-                    'game' => 'game_name',
-                ],
-            )
-            ->from('stream')
-            ->where(['!=', 'game_name', ''])
-            ->groupBy('game_name')
-            ->orderBy(['viewers' => SORT_DESC])
-            ->all();
+        return $this->streamRepository->getTopGamesByViewers();
     }
 
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace app\controllers\api;
 
-use app\components\MathHelpers;
-use app\models\Stream;
+
+use app\components\helpers\MathHelpers;
+use app\components\repositories\StreamRepository;
 use Exception;
-use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\filters\ContentNegotiator;
 use yii\web\Controller;
@@ -17,6 +17,15 @@ use yii\web\Response;
 class StreamController extends Controller
 {
     const TOP_LIMIT = 100;
+
+    public function __construct(
+        $id,
+        $module,
+        protected readonly StreamRepository $streamRepository,
+        array $config = []
+    ) {
+        parent::__construct($id, $module, $config);
+    }
 
     /**
      * {@inheritdoc}
@@ -48,11 +57,7 @@ class StreamController extends Controller
      */
     public function actionMedianViewers(): array
     {
-        $rows = (new Query())
-            ->select(['viewer_count'])
-            ->from('stream')
-            ->column();
-
+        $rows = $this->streamRepository->getViewersColumn();
         return ['median_viewers' => MathHelpers::calculateMedian($rows)];
     }
 
@@ -62,10 +67,7 @@ class StreamController extends Controller
      */
     public function actionTop(): array
     {
-        return Stream::find()
-            ->orderBy(['viewer_count' => SORT_DESC])
-            ->limit(self::TOP_LIMIT)
-            ->all();
+        return $this->streamRepository->getTopStreams(self::TOP_LIMIT);
     }
 
     /**
@@ -73,16 +75,6 @@ class StreamController extends Controller
      */
     public function actionStreamsByHour(): array
     {
-        return (new Query())
-            ->select(
-                [
-                    'day' => 'DAY(started_at)',
-                    'hour' => 'HOUR(started_at)',
-                    'streams' => 'count(id)',
-                ],
-            )
-            ->from('stream')
-            ->groupBy(['DAY(started_at)', 'HOUR(started_at)'])
-            ->all();
+        return $this->streamRepository->getStreamsByHour();
     }
 }
