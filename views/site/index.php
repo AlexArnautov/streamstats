@@ -15,10 +15,6 @@ $this->title = 'My Yii Application';
     </div>
 
     <div class="body-content">
-        <?= yii\authclient\widgets\AuthChoice::widget([
-            'baseAuthUrl' => ['site/auth'],
-            'popupMode' => false,
-        ]) ?>
         <div class="row">
             <div class="col-lg-4">
                 <h2>Heading</h2>

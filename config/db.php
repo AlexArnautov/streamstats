@@ -5,7 +5,7 @@ return [
     'dsn' => 'mysql:host=database;dbname=streamstats',
     'username' => 'root',
     'password' => '1234',
-    'charset' => 'utf8',
+    'charset' => 'utf8mb4',
 
     // Schema cache options (for production environment)
     //'enableSchemaCache' => true,

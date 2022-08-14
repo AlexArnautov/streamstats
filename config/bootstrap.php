@@ -1,6 +1,10 @@
 <?php
 
 Yii::$container->set(
-    'app\components\services\StreamsServiceInterface',
-    'app\components\services\StreamsService'
+    'app\components\StreamsAPIServiceInterface',
+    'app\components\StreamsAPIService'
+);
+
+Yii::$container->set(
+    'app\components\StreamsFactory'
 );

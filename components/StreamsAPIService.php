@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace app\components\services;
+namespace app\components;
 
 use Exception;
 use Generator;
@@ -10,7 +11,7 @@ use TwitchApi\TwitchApi;
 use Yii;
 use yii\helpers\Json;
 
-class StreamsService implements StreamsServiceInterface
+class StreamsAPIService implements StreamsAPIServiceInterface
 {
     public const STREAMS_PER_PAGE = 100;
     public const STREAMS_PAGES = 10;
@@ -53,7 +54,7 @@ class StreamsService implements StreamsServiceInterface
                 ->getContents();
             $streamsData = Json::decode($streams);
             $afterHash = $streamsData['pagination']['cursor'];
-            yield $streams;
+            yield $streamsData['data'];
         }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use pa3py6aka\yii2auth\TwitchClient;
 use Yii;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
@@ -24,6 +23,7 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
+    public array $loginUrl = ['site/index'];
     public function behaviors()
     {
         return [
@@ -146,7 +146,7 @@ class User extends ActiveRecord implements IdentityInterface
      * Finds user by username
      *
      * @param string $username
-     * @return static|null
+     * @return User
      */
     public static function findByUsername(string $username): static
     {
