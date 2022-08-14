@@ -12,7 +12,13 @@ class m220807_203259_add_tag_table extends Migration
      */
     public function safeUp()
     {
-
+        $this->createTable('tag', [
+            'id' => $this->primaryKey(),
+            'twitch_id' => $this->string(255)->notNull(),
+            'name' => $this->string()->notNull(),
+            'created_at' => $this->dateTime()->notNull(),
+            'updated_at' => $this->dateTime()->notNull(),
+        ]);
     }
 
     /**
@@ -20,23 +26,6 @@ class m220807_203259_add_tag_table extends Migration
      */
     public function safeDown()
     {
-        echo "m220807_203259_add_tag_table cannot be reverted.\n";
-
-        return false;
+        $this->dropTable('tag');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m220807_203259_add_tag_table cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

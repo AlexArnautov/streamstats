@@ -7,8 +7,12 @@ namespace app\commands;
 
 use app\components\StreamsAPIServiceInterface;
 use app\components\StreamsFactory;
+use app\components\TagsFactory;
 use app\models\Stream;
+use app\models\Tag;
+use GuzzleHttp\Exception\GuzzleException;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\console\Exception;
 use yii\console\ExitCode;
@@ -23,6 +27,7 @@ class ParseStreamsController extends Controller
      * @param $module
      * @param StreamsAPIServiceInterface $streamsService
      * @param StreamsFactory $streamsFactory
+     * @param TagsFactory $tagsFactory
      * @param array $config
      */
     public function __construct(
@@ -30,15 +35,18 @@ class ParseStreamsController extends Controller
         $module,
         protected readonly StreamsAPIServiceInterface $streamsService,
         protected readonly StreamsFactory $streamsFactory,
+        protected readonly TagsFactory $tagsFactory,
         array $config = []
     ) {
         parent::__construct($id, $module, $config);
     }
 
     /**
+     * @return int
+     * @throws GuzzleException
      * @throws \yii\base\Exception
      */
-    public function actionIndex()
+    public function actionIndex(): int
     {
         $parseHash = Yii::$app->security->generateRandomString(10);
         echo 'Start parsing streams...' . PHP_EOL;
@@ -60,6 +68,8 @@ class ParseStreamsController extends Controller
 
     /**
      * @throws Exception
+     * @throws GuzzleException
+     * @throws InvalidConfigException
      */
     private function saveBatch(array $streamBatch, string $parseHash): void
     {
@@ -72,10 +82,35 @@ class ParseStreamsController extends Controller
             $streamModel->parse_hash = $parseHash;
             if ($streamModel->save()) {
                 echo 'Stream saved: ' . $streamModel->title . PHP_EOL;
-                $tags = $this->streamsService->getTagByBroadcasterId($streamRaw['user_id']);
+                $tags = $this->streamsService->getTagsByBroadcasterId((string)$streamModel->twitch_user_id);
+                $this->saveStreamTags($streamModel, $tags);
             } else {
                 echo Json::encode($streamRaw) . PHP_EOL;
                 throw new Exception('Unable to save stream: ' . Json::encode($streamModel->getFirstErrors()));
+            }
+        }
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    private function saveStreamTags(Stream $streamModel, array $tags)
+    {
+        foreach ($tags['data'] as $tag) {
+            $tagModel = Tag::findOne(['twitch_id' => $tag['tag_id']]);
+            if ($tagModel === null) {
+                $tagModel = $this->tagsFactory->createTag($tag);
+                if ($tagModel->save()) {
+                    echo 'New tag saved: ' . $tagModel->name . PHP_EOL;
+                } else {
+                    throw new Exception('Unable to save tag: ' . Json::encode($tagModel->getFirstErrors()));
+                }
+            }
+
+            $existTag = $streamModel->getTags()->where(['id' => $tagModel->id])->one();
+            if ($existTag === null) {
+                $streamModel->link('tags', $tagModel);
             }
         }
     }

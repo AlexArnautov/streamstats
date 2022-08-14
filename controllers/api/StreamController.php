@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\controllers\api;
 
-use app\components\Helpers;
+use app\components\MathHelpers;
 use app\models\Stream;
 use Exception;
 use yii\db\Query;
@@ -53,7 +53,7 @@ class StreamController extends Controller
             ->from('stream')
             ->column();
 
-        return ['median_viewers' => Helpers::calculateMedian($rows)];
+        return ['median_viewers' => MathHelpers::calculateMedian($rows)];
     }
 
     /**

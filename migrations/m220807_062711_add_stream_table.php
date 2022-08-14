@@ -15,6 +15,7 @@ class m220807_062711_add_stream_table extends Migration
         $this->createTable('stream', [
             'id' => $this->primaryKey(),
             'twitch_id' => $this->bigInteger()->notNull()->unsigned(),
+            'twitch_user_id' => $this->bigInteger()->notNull()->unsigned(),
             'title' => $this->string()->notNull(),
             'game_name' => $this->string(),
             'channel_name' => $this->string()->notNull(),

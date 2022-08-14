@@ -20,6 +20,7 @@ class StreamsFactory
         }
         $streamModel = new Stream();
         $streamModel->twitch_id = $rawData['id'];
+        $streamModel->twitch_user_id = $rawData['user_id'];
         $streamModel->game_name = $rawData['game_name'];
         $streamModel->channel_name = $rawData['user_name'];
         $streamModel->title = $rawData['title'];

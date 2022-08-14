@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\controllers\api;
 
 use app\components\StreamsAPIServiceInterface;
+use app\models\Tag;
 use GuzzleHttp\Exception\GuzzleException;
 use Throwable;
 use yii\base\Exception;
@@ -60,8 +61,31 @@ class UserController extends Controller
      * @throws GuzzleException
      * @throws Throwable
      */
-    public function actionTopFollowing()
+    public function actionTopFollowing(): array
     {
         return $this->streamsService->getLoggedUserStreams();
+    }
+
+    /**
+     * @throws Exception
+     * @throws GuzzleException
+     * @throws Throwable
+     */
+    public function actionSharedTags(): array
+    {
+        $tagIds = $this->streamsService->getLoggedUserTagIds();
+        return Tag::find()
+            ->select('name')
+            ->where(['in', 'twitch_id', $tagIds])->column();
+    }
+
+    /**
+     * @throws Exception
+     * @throws GuzzleException
+     * @throws Throwable
+     */
+    public function actionStreamToTop(): array
+    {
+       $this->streamsService->getNeededViewersUserFollowedForTop();
     }
 }

@@ -8,3 +8,7 @@ Yii::$container->set(
 Yii::$container->set(
     'app\components\StreamsFactory'
 );
+
+Yii::$container->set(
+    'app\components\TagsFactory'
+);

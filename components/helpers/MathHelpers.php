@@ -6,7 +6,7 @@ namespace app\components;
 
 use Exception;
 
-class Helpers
+class MathHelpers
 {
     /**
      * Calculate median for array

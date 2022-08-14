@@ -2,6 +2,9 @@
 
 namespace app\models;
 
+use app\models\Tag;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 
@@ -10,6 +13,7 @@ use yii\db\Expression;
  *
  * @property int $id
  * @property int $twitch_id
+ * @property int $twitch_user_id
  * @property string $title
  * @property string $game_name
  * @property string $channel_name
@@ -21,7 +25,7 @@ use yii\db\Expression;
  */
 class Stream extends ActiveRecord
 {
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'timestamp' => [
@@ -49,8 +53,8 @@ class Stream extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['twitch_id', 'title', 'channel_name', 'started_at', 'viewer_count', 'parse_hash'], 'required'],
-            [['twitch_id', 'viewer_count'], 'integer'],
+            [['twitch_id', 'twitch_user_id', 'title', 'channel_name', 'started_at', 'viewer_count', 'parse_hash'], 'required'],
+            [['twitch_id', 'viewer_count', 'twitch_user_id'], 'integer'],
             [['started_at', 'created_at', 'updated_at'], 'safe'],
             [['title', 'game_name', 'channel_name', 'parse_hash'], 'string', 'max' => 255],
         ];
@@ -72,5 +76,15 @@ class Stream extends ActiveRecord
             'created_at' => 'Created',
             'updated_at' => 'Updated',
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     * @throws InvalidConfigException
+     */
+    public function getTags(): ActiveQuery
+    {
+        return $this->hasMany(Tag::class, ['id' => 'tag_id'])
+            ->viaTable('stream_tag', ['stream_id' => 'id']);
     }
 }
